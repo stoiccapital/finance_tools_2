@@ -173,6 +173,94 @@ footer {
     .tools-grid {
         grid-template-columns: 1fr;
     }
+
+    .compare-container {
+        padding: 1rem;
+        margin: 0.5rem;
+        border-radius: 8px;
+    }
+
+    .compare-form {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input {
+        padding: 0.6rem 0.8rem;
+        font-size: 1rem;
+    }
+
+    .compare-btn {
+        width: 100%;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        margin: 1rem 0;
+    }
+
+    .results-container {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .compare-table {
+        font-size: 0.8rem;
+        min-width: 800px; /* Ensure table is scrollable on mobile */
+    }
+
+    .compare-table th, 
+    .compare-table td {
+        padding: 0.4rem;
+        white-space: nowrap;
+    }
+
+    /* Add horizontal scroll indicator */
+    .results-container::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 20px;
+        background: linear-gradient(to right, transparent, var(--bg-light));
+        pointer-events: none;
+    }
+
+    /* Improve table header visibility */
+    .compare-table thead {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+    }
+
+    /* Add touch-friendly spacing */
+    .compare-table td {
+        min-width: 80px;
+    }
+
+    /* Make first column (Year) sticky */
+    .compare-table th:first-child,
+    .compare-table td:first-child {
+        position: sticky;
+        left: 0;
+        background: var(--bg-light);
+        z-index: 2;
+    }
+
+    /* Add visual feedback for touch */
+    .compare-table tr:active td {
+        background: #e5e7eb;
+    }
 }
 
 @media (max-width: 480px) {
@@ -182,6 +270,28 @@ footer {
 
     .nav-links {
         font-size: 0.9rem;
+    }
+
+    .compare-container {
+        padding: 0.5rem;
+        margin: 0.25rem;
+    }
+
+    .compare-form {
+        padding: 0.75rem;
+    }
+
+    .form-group input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    .compare-table {
+        font-size: 0.75rem;
+    }
+
+    .compare-table th, 
+    .compare-table td {
+        padding: 0.3rem;
     }
 }
 
@@ -219,4 +329,27 @@ footer {
 .compare-btn:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Add smooth scrolling for the table container */
+.results-container {
+    scroll-behavior: smooth;
+    position: relative;
+}
+
+/* Add pull-to-refresh visual feedback */
+.results-container::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: var(--bg-light);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.results-container:active::before {
+    opacity: 1;
 } 
