@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate your monthly and yearly income based on total assets and return rates.">
+    <title>Income from Assets Calculator | Financial Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo-link">
+                <img src="public/logo.png" alt="Logo" class="logo">
+            </a>
+            <div class="nav-links">
+                <a href="tools.html">Tools</a>
+                <a href="blog.html">Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="tools-headline">Income from Assets Calculator</h1>
+        <p class="subheadline">See how much money your assets can generate every month.</p>
+        
+        <div class="calculator-container">
+            <div class="calculator-toggle">
+                <button type="button" class="toggle-btn active" data-mode="income">Calculate Income</button>
+                <button type="button" class="toggle-btn" data-mode="assets">Calculate Required Assets</button>
+            </div>
+            <form class="calculator-form" id="incomeForm">
+                <div class="form-group" id="assetsGroup">
+                    <label for="assets">Total Assets (€)</label>
+                    <input type="number" id="assets" name="assets" placeholder="e.g. 1000000" min="0" step="any" required>
+                </div>
+                <div class="form-group" id="incomeGroup" style="display: none;">
+                    <label for="desiredIncome">Desired Monthly Income (€)</label>
+                    <input type="number" id="desiredIncome" name="desiredIncome" placeholder="e.g. 5000" min="0" step="any">
+                </div>
+                <div class="form-group">
+                    <label for="return">Dividend or Income (%)</label>
+                    <input type="number" id="return" name="return" placeholder="e.g. 5" min="0" step="any" required>
+                </div>
+                <div class="form-group" id="spendingGroup">
+                    <label for="spending">Desired Monthly Spending (€, optional)</label>
+                    <input type="number" id="spending" name="spending" placeholder="e.g. 5000" min="0" step="any">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1; text-align: center;">
+                    <button type="submit" class="calculate-btn">Calculate</button>
+                </div>
+            </form>
+            <div class="results-container" id="results" style="display:none;">
+                <div class="results-card">
+                    <h3>Your Results</h3>
+                    <div class="result-item" id="incomeResults">
+                        <span>Annual Income:</span>
+                        <span id="annualIncome">€0</span>
+                    </div>
+                    <div class="result-item" id="monthlyResults">
+                        <span>Monthly Income:</span>
+                        <span id="monthlyIncome">€0</span>
+                    </div>
+                    <div class="result-item" id="assetsResults" style="display:none;">
+                        <span>Required Assets:</span>
+                        <span id="requiredAssets">€0</span>
+                    </div>
+                    <div class="result-item" id="spendingResult" style="display:none;">
+                        <span>Monthly Shortfall:</span>
+                        <span id="monthlyShortfall">€0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Financial Freedom Tools. All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html> 

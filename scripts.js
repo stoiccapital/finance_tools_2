@@ -100,3 +100,100 @@ if (document.getElementById('compareForm')) {
         document.getElementById('results').style.display = 'block';
     };
 } 
+
+// Income Calculator Logic
+if (document.getElementById('incomeForm')) {
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('de-DE', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
+
+    // Toggle between calculation modes
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    const assetsGroup = document.getElementById('assetsGroup');
+    const incomeGroup = document.getElementById('incomeGroup');
+    const spendingGroup = document.getElementById('spendingGroup');
+    const incomeResults = document.getElementById('incomeResults');
+    const monthlyResults = document.getElementById('monthlyResults');
+    const assetsResults = document.getElementById('assetsResults');
+
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update toggle buttons
+            toggleBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Show/hide relevant form groups
+            const mode = btn.dataset.mode;
+            if (mode === 'income') {
+                assetsGroup.style.display = 'flex';
+                incomeGroup.style.display = 'none';
+                spendingGroup.style.display = 'flex';
+                incomeResults.style.display = 'flex';
+                monthlyResults.style.display = 'flex';
+                assetsResults.style.display = 'none';
+                document.getElementById('assets').required = true;
+                document.getElementById('desiredIncome').required = false;
+            } else {
+                assetsGroup.style.display = 'none';
+                incomeGroup.style.display = 'flex';
+                spendingGroup.style.display = 'none';
+                incomeResults.style.display = 'none';
+                monthlyResults.style.display = 'none';
+                assetsResults.style.display = 'flex';
+                document.getElementById('assets').required = false;
+                document.getElementById('desiredIncome').required = true;
+            }
+        });
+    });
+
+    document.getElementById('incomeForm').onsubmit = function(e) {
+        e.preventDefault();
+        const returnRate = parseFloat(this.return.value);
+        const mode = document.querySelector('.toggle-btn.active').dataset.mode;
+        
+        if (isNaN(returnRate)) return;
+
+        if (mode === 'income') {
+            // Calculate income from assets
+            const assets = parseFloat(this.assets.value);
+            const spending = parseFloat(this.spending.value) || 0;
+            
+            if (isNaN(assets)) return;
+
+            const annualIncome = assets * (returnRate / 100);
+            const monthlyIncome = annualIncome / 12;
+            
+            document.getElementById('annualIncome').textContent = formatCurrency(annualIncome);
+            document.getElementById('monthlyIncome').textContent = formatCurrency(monthlyIncome);
+            
+            // Show spending comparison if provided
+            const spendingResult = document.getElementById('spendingResult');
+            if (spending > 0) {
+                const shortfall = spending - monthlyIncome;
+                document.getElementById('monthlyShortfall').textContent = formatCurrency(Math.abs(shortfall));
+                spendingResult.style.display = 'flex';
+                spendingResult.querySelector('span:first-child').textContent = 
+                    shortfall <= 0 ? 'Monthly Surplus:' : 'Monthly Shortfall:';
+            } else {
+                spendingResult.style.display = 'none';
+            }
+        } else {
+            // Calculate required assets from desired income
+            const desiredIncome = parseFloat(this.desiredIncome.value);
+            
+            if (isNaN(desiredIncome)) return;
+
+            const annualIncome = desiredIncome * 12;
+            const requiredAssets = (annualIncome / (returnRate / 100));
+            
+            document.getElementById('requiredAssets').textContent = formatCurrency(requiredAssets);
+        }
+        
+        document.getElementById('results').style.display = 'block';
+    };
+} 
