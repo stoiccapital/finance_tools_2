@@ -147,7 +147,10 @@ if (document.getElementById('incomeForm')) {
                 assetsResults.style.display = 'flex';
                 document.getElementById('assets').required = false;
                 document.getElementById('desiredIncome').required = true;
+                // Clear previous result
+                document.getElementById('requiredAssets').textContent = '';
             }
+            document.getElementById('results').style.display = 'none';
         });
     });
 
@@ -155,22 +158,16 @@ if (document.getElementById('incomeForm')) {
         e.preventDefault();
         const returnRate = parseFloat(this.return.value);
         const mode = document.querySelector('.toggle-btn.active').dataset.mode;
-        
         if (isNaN(returnRate)) return;
-
         if (mode === 'income') {
             // Calculate income from assets
             const assets = parseFloat(this.assets.value);
             const spending = parseFloat(this.spending.value) || 0;
-            
             if (isNaN(assets)) return;
-
             const annualIncome = assets * (returnRate / 100);
             const monthlyIncome = annualIncome / 12;
-            
             document.getElementById('annualIncome').textContent = formatCurrency(annualIncome);
             document.getElementById('monthlyIncome').textContent = formatCurrency(monthlyIncome);
-            
             // Show spending comparison if provided
             const spendingResult = document.getElementById('spendingResult');
             if (spending > 0) {
@@ -182,18 +179,115 @@ if (document.getElementById('incomeForm')) {
             } else {
                 spendingResult.style.display = 'none';
             }
+            assetsResults.style.display = 'none';
         } else {
             // Calculate required assets from desired income
             const desiredIncome = parseFloat(this.desiredIncome.value);
-            
             if (isNaN(desiredIncome)) return;
-
             const annualIncome = desiredIncome * 12;
             const requiredAssets = (annualIncome / (returnRate / 100));
-            
-            document.getElementById('requiredAssets').textContent = formatCurrency(requiredAssets);
+            document.getElementById('requiredAssets').innerHTML = `<strong>€${formatCurrency(requiredAssets)}</strong> required to generate €${formatCurrency(desiredIncome)} per month at ${returnRate}% annual return.`;
+            assetsResults.style.display = 'flex';
+            // Hide spending result in required assets mode
+            document.getElementById('spendingResult').style.display = 'none';
         }
-        
         document.getElementById('results').style.display = 'block';
     };
 } 
+
+// Sell Asset Simulator
+// Add toggle and required assets calculation
+function calculateRequiredAssets(withdrawal, years, returnRate) {
+    // Formula for present value of an ordinary annuity
+    // PV = PMT * [1 - (1 + r)^-n] / r
+    const r = returnRate / 100;
+    if (r === 0) return withdrawal * years;
+    return withdrawal * (1 - Math.pow(1 + r, -years)) / r;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sellForm = document.getElementById('sellForm');
+    const toggleBtns = document.querySelectorAll('.calculator-toggle .toggle-btn');
+    const assetsGroup = document.getElementById('assetsGroup');
+    const withdrawalGroup = document.getElementById('withdrawalGroup');
+    const returnGroup = document.getElementById('returnGroup');
+    const yearsGroup = document.getElementById('yearsGroup');
+    const resultsDiv = document.getElementById('results');
+    const drawdownResults = document.getElementById('drawdownResults');
+    const requiredResults = document.getElementById('requiredResults');
+    const requiredAssetsResult = document.getElementById('requiredAssetsResult');
+
+    if (requiredResults) {
+        requiredResults.style.display = 'none';
+    }
+
+    if (sellForm) {
+        // Toggle logic
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const mode = btn.dataset.mode;
+                if (mode === 'drawdown') {
+                    assetsGroup.style.display = '';
+                    yearsGroup.style.display = 'none';
+                    drawdownResults.style.display = '';
+                    requiredResults.style.display = 'none';
+                    document.getElementById('assets').required = true;
+                    document.getElementById('years').required = false;
+                } else {
+                    assetsGroup.style.display = 'none';
+                    yearsGroup.style.display = '';
+                    drawdownResults.style.display = 'none';
+                    requiredResults.style.display = '';
+                    document.getElementById('assets').required = false;
+                    document.getElementById('years').required = true;
+                }
+                resultsDiv.style.display = 'none';
+            });
+        });
+
+        sellForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const assets = parseFloat(document.getElementById('assets').value);
+            let withdrawal = parseFloat(document.getElementById('withdrawal').value);
+            const returnRate = parseFloat(document.getElementById('return').value);
+            if (isNaN(assets) || isNaN(withdrawal) || isNaN(returnRate)) return;
+            // Calculate implied withdrawal rate
+            const withdrawalRate = (withdrawal * 12) / assets * 100;
+            const annualWithdrawal = withdrawal * 12;
+            let currentAssets = assets;
+            let years = 0;
+            const yearlyResults = [];
+            while (currentAssets > 0 && years < 100) {
+                yearlyResults.push({
+                    year: years + 1,
+                    assets: currentAssets
+                });
+                currentAssets = (currentAssets - annualWithdrawal) * (1 + returnRate / 100);
+                years++;
+            }
+            resultsDiv.style.display = 'block';
+            drawdownResults.style.display = '';
+            const warningMessage = document.getElementById('warningMessage');
+            const resultMessage = document.getElementById('resultMessage');
+            const yearlyData = document.getElementById('yearlyData');
+            warningMessage.style.display = annualWithdrawal > (assets * returnRate / 100) ? 'block' : 'none';
+            let resultText = '';
+            if (years >= 30) {
+                resultText += '<div class="success-message">✅ Your strategy is likely sustainable</div>';
+            } else {
+                resultText += `<div class="warning-message">⚠️ Your assets will last ${years} years</div>`;
+            }
+            resultText += `<div style='margin-top:1rem; color:#333;'><strong>Your assets will last:</strong> ${years} years</div>`;
+            resultText += `<div style='margin-top:0.5rem; color:#333;'><strong>Monthly Withdrawal:</strong> €${formatLargeNumber(withdrawal)}<br><strong>Implied Withdrawal Rate:</strong> ${withdrawalRate.toFixed(2)}%</div>`;
+            resultMessage.innerHTML = resultText;
+            yearlyData.innerHTML = yearlyResults.map(({ year, assets }) => `
+                <tr>
+                    <td>${year}</td>
+                    <td>€${formatLargeNumber(assets)}</td>
+                </tr>
+            `).join('');
+        });
+    }
+}); 

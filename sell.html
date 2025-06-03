@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estimate how long your assets will last if you sell a fixed percentage every year.">
+    <title>Sell Asset Simulator | Financial Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo-link">
+                <img src="public/logo.png" alt="Logo" class="logo">
+            </a>
+            <div class="nav-links">
+                <a href="tools.html">Tools</a>
+                <a href="blog.html">Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="page-title">Sell Asset Simulator</h1>
+        <p class="subheader">See how long your assets can support your lifestyle through annual withdrawals.</p>
+
+        <div class="calculator-container">
+            <div class="calculator-toggle">
+                <button type="button" class="toggle-btn active" data-mode="drawdown">Simulate Asset Drawdown</button>
+                <button type="button" class="toggle-btn" data-mode="required">Calculate Required Assets</button>
+            </div>
+            <form class="calculator-form" id="sellForm">
+                <div class="form-group" id="assetsGroup">
+                    <label for="assets">Total Assets (€)</label>
+                    <input type="number" id="assets" name="assets" placeholder="e.g. 500000" min="0" step="any" required>
+                </div>
+
+                <div class="form-group" id="withdrawalGroup">
+                    <label for="withdrawal">Monthly Withdrawal Amount (€)</label>
+                    <input type="number" id="withdrawal" name="withdrawal" placeholder="e.g. 2500" min="0" step="any" required>
+                </div>
+
+                <div class="form-group" id="returnGroup">
+                    <label for="return">Expected Annual Return (%)</label>
+                    <input type="number" id="return" name="return" placeholder="e.g. 5" min="0" step="any" required>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1; text-align: center;">
+                    <button type="submit" class="compare-btn">Calculate</button>
+                </div>
+            </form>
+
+            <div class="results-container" id="results" style="display:none;">
+                <div class="results-card" id="drawdownResults">
+                    <h2>Results</h2>
+                    <div id="warningMessage" class="warning-message" style="display:none;">
+                        ⚠️ Warning: Your withdrawal amount is higher than your expected annual return
+                    </div>
+                    <div id="resultMessage" class="result-message"></div>
+
+                    <div class="yearly-table">
+                        <h3>Yearly Asset Values</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Assets</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yearlyData">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="results-card" id="requiredResults" style="display:none;">
+                    <h2>Required Starting Assets</h2>
+                    <div class="result-message" id="requiredAssetsResult"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Financial Freedom Tools. All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html> 
