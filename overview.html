@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monthly Overview</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo-link">
+        <img src="public/logo.png" alt="Logo" class="logo" />
+      </a>
+      <div class="nav-links">
+        <a href="solution.html">Tracker</a>
+        <a href="overview.html" class="active">Overview</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="submitted-data">
+      <h1>Monthly Overview</h1>
+      <table class="data-table" id="monthlyTable">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Year</th>
+            <th>Total Income (€)</th>
+            <th>Total Expenses (€)</th>
+            <th>Balance (€)</th>
+          </tr>
+        </thead>
+        <tbody id="monthlyTableBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const tableBody = document.getElementById('monthlyTableBody');
+
+      function getMonthName(m) {
+        return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1];
+      }
+
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzrb1C_9HmneNmf9H2gFkf6DeHxL9OZHNsL32jmUCbnJoCbwhUGirnkYLIApKlJBLdr/exec');
+        const data = await response.json();
+
+        const summary = {};
+
+        data.forEach(entry => {
+          const year = entry.Year;
+          const month = entry.Month;
+          const income = parseFloat(entry.Income || 0);
+          const expenses = parseFloat(entry.Expenses || 0);
+
+          if (!year || !month) return;
+
+          const key = `${year}-${month}`;
+          if (!summary[key]) summary[key] = { income: 0, expenses: 0 };
+
+          summary[key].income += income;
+          summary[key].expenses += expenses;
+        });
+
+        Object.entries(summary).forEach(([key, value]) => {
+          const [year, month] = key.split("-");
+          const balance = value.income - value.expenses;
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${getMonthName(parseInt(month))}</td>
+            <td>${year}</td>
+            <td>${value.income.toFixed(2)}</td>
+            <td>${value.expenses.toFixed(2)}</td>
+            <td class="${balance >= 0 ? 'positive' : 'negative'}">${balance.toFixed(2)}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+      } catch (err) {
+        console.error("Failed to load monthly summary:", err);
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="5">⚠️ Failed to load data.</td>`;
+        tableBody.appendChild(row);
+      }
+    });
+  </script>
+</body>
+</html>
