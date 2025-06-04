@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monthly Overview</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .roi-control {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .roi-control label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e9ecef;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1976D2;
+      cursor: pointer;
+    }
+    
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1976D2;
+      cursor: pointer;
+      border: none;
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-bottom: 2rem;
+      align-items: stretch;
+    }
+    @media (max-width: 900px) {
+      .dashboard-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      .dashboard-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+    .dashboard-card {
+      background: #f8f9fa;
+      border-radius: 20px;
+      padding: 2rem 2rem 1.5rem 2rem;
+      box-shadow: 0 2px 8px 0 rgba(16,30,54,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+    }
+    .dashboard-label {
+      color: #5a6473;
+      font-size: 1.15rem;
+      font-weight: 500;
+      margin-bottom: 0.7rem;
+    }
+    .dashboard-value {
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -1px;
+      word-break: break-word;
+    }
+    .projection-table-container {
+      margin: 2rem 0 2.5rem 0;
+      width: 100%;
+      overflow-x: auto;
+    }
+    .projection-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #f8f9fa;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px 0 rgba(16,30,54,0.04);
+      font-size: 1.15rem;
+      text-align: center;
+    }
+    .projection-table th, .projection-table td {
+      padding: 1.1rem 1.2rem;
+      min-width: 90px;
+    }
+    .projection-table th {
+      color: #5a6473;
+      font-weight: 600;
+      font-size: 1.1rem;
+      background: #f0f1f3;
+    }
+    .projection-table .row-label {
+      text-align: left;
+      color: #5a6473;
+      font-weight: 600;
+      background: #f0f1f3;
+    }
+    .projection-table td {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #111;
+      background: #f8f9fa;
+    }
+    @media (max-width: 900px) {
+      .projection-table th, .projection-table td {
+        padding: 0.7rem 0.5rem;
+        min-width: 70px;
+        font-size: 1rem;
+      }
+      .projection-table td {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-link">
+        <img src="public/logo.svg" alt="Logo" class="logo" />
+      </a>
+      <div class="nav-links">
+        <a href="tools.html">Tools</a>
+        <a href="solution.html">Solution</a>
+        <a href="blog.html">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard">
+      <h2 class="section-title">Dashboard</h2>
+      <div class="dashboard-cards">
+        <div class="dashboard-card">
+          <div class="dashboard-label">Average Savings</div>
+          <div id="avg-savings" class="dashboard-value">...</div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-label">Average Savings Rate</div>
+          <div id="avg-savings-rate" class="dashboard-value">...</div>
+        </div>
+      </div>
+      <div class="projection-table-container">
+        <table class="projection-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>1y</th>
+              <th>2y</th>
+              <th>5y</th>
+              <th>10y</th>
+              <th>20y</th>
+              <th>30y</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label">Savings Projection</td>
+              <td id="savings-1y">...</td>
+              <td id="savings-2y">...</td>
+              <td id="savings-5y">...</td>
+              <td id="savings-10y">...</td>
+              <td id="savings-20y">...</td>
+              <td id="savings-30y">...</td>
+            </tr>
+            <tr>
+              <td class="row-label">Asset Projection</td>
+              <td id="asset-1y">...</td>
+              <td id="asset-2y">...</td>
+              <td id="asset-5y">...</td>
+              <td id="asset-10y">...</td>
+              <td id="asset-20y">...</td>
+              <td id="asset-30y">...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="dashboard-graph" style="margin-top:2.5rem;">
+        <canvas id="savingsChart" height="80"></canvas>
+      </div>
+    </section>
+
+    <section class="asset-projection">
+      <h2 class="section-title">Asset Projection</h2>
+      <div class="roi-control">
+        <label for="roiSlider">Expected Yearly Return on Investment: <span id="roiValue">7</span>%</label>
+        <input type="range" id="roiSlider" min="0" max="20" value="7" step="0.1" class="slider">
+      </div>
+      <div class="dashboard-graph" style="margin-top:2.5rem;">
+        <canvas id="assetChart" height="80"></canvas>
+      </div>
+    </section>
+
+    <section class="submitted-data">
+      <h1 class="section-title">Monthly Overview</h1>
+      <div class="table-responsive">
+        <table class="data-table" id="monthlyTable">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Year</th>
+              <th>Total Income (€)</th>
+              <th>Total Expenses (€)</th>
+              <th>Balance (€)</th>
+            </tr>
+          </thead>
+          <tbody id="monthlyTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const tableBody = document.getElementById('monthlyTableBody');
+
+      function getMonthName(m) {
+        return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1];
+      }
+
+      // Format numbers as 1K, 1M, 1B with max 3 digits
+      function formatCompact(num, isPercent = false) {
+        if (isNaN(num)) return '-';
+        if (isPercent) {
+          return num.toLocaleString(undefined, { maximumSignificantDigits: 3 }) + ' %';
+        }
+        return num.toLocaleString(undefined, { notation: 'compact', maximumSignificantDigits: 3 });
+      }
+
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzrb1C_9HmneNmf9H2gFkf6DeHxL9OZHNsL32jmUCbnJoCbwhUGirnkYLIApKlJBLdr/exec');
+        const data = await response.json();
+
+        const summary = {};
+        let totalSavings = 0;
+        let totalIncome = 0;
+        let totalSavingsRate = 0;
+        let count = 0;
+
+        data.forEach(entry => {
+          const year = entry.Year;
+          const month = entry.Month;
+          const income = parseFloat(entry.Income || 0);
+          const expenses = parseFloat(entry.Expenses || 0);
+          const savings = income - expenses;
+
+          if (!year || !month) return;
+
+          const key = `${year}-${month}`;
+          if (!summary[key]) summary[key] = { income: 0, expenses: 0 };
+
+          summary[key].income += income;
+          summary[key].expenses += expenses;
+        });
+
+        // Calculate dashboard stats
+        Object.values(summary).forEach(({income, expenses}) => {
+          const savings = income - expenses;
+          totalSavings += savings;
+          totalIncome += income;
+          if (income > 0) {
+            totalSavingsRate += (savings / income);
+            count++;
+          }
+        });
+
+        const avgSavingsProjection = count > 0 ? totalSavings / count : 0;
+        const avgSavingsRate = count > 0 ? (totalSavingsRate / count) * 100 : 0;
+        
+        // Short-term projections (months)
+        const projection12 = totalSavings + avgSavingsProjection * 12;
+        const projection24 = totalSavings + avgSavingsProjection * 24;
+        const projection60 = totalSavings + avgSavingsProjection * 60;
+        
+        // Long-term projections (years)
+        const projection10 = totalSavings + avgSavingsProjection * 120; // 10 years
+        const projection20 = totalSavings + avgSavingsProjection * 240; // 20 years
+        const projection30 = totalSavings + avgSavingsProjection * 360; // 30 years
+
+        document.getElementById('avg-savings').textContent = formatCompact(avgSavingsProjection) + ' €';
+        document.getElementById('avg-savings-rate').textContent = formatCompact(avgSavingsRate, true);
+
+        // Prepare data for the chart
+        // 1. Sort summary by date
+        const sortedKeys = Object.keys(summary).sort((a, b) => {
+          const [ya, ma] = a.split('-').map(Number);
+          const [yb, mb] = b.split('-').map(Number);
+          return ya !== yb ? ya - yb : ma - mb;
+        });
+        let cumulative = 0;
+        const labels = [];
+        const actualSavings = [];
+        sortedKeys.forEach(key => {
+          const { income, expenses } = summary[key];
+          cumulative += income - expenses;
+          const [year, month] = key.split('-');
+          labels.push(getMonthName(parseInt(month)) + ' ' + year);
+          actualSavings.push(cumulative);
+        });
+        
+        // 2. Projected savings
+        let lastValue = actualSavings.length > 0 ? actualSavings[actualSavings.length - 1] : 0;
+        const projectionMonths = [12, 24, 60, 120, 240, 360]; // All projection points
+        let projectedLabels = [];
+        let projectedSavings = [];
+        for (let i = 1; i <= Math.max(...projectionMonths); i++) {
+          let date = new Date();
+          if (sortedKeys.length > 0) {
+            const [lastYear, lastMonth] = sortedKeys[sortedKeys.length - 1].split('-').map(Number);
+            date = new Date(lastYear, lastMonth - 1 + i, 1);
+          } else {
+            date.setMonth(date.getMonth() + i);
+          }
+          const label = getMonthName(date.getMonth() + 1) + ' ' + date.getFullYear();
+          projectedLabels.push(label);
+          projectedSavings.push(lastValue + avgSavingsProjection * i);
+        }
+
+        // Merge labels for chart
+        const allLabels = labels.concat(projectedLabels);
+        const allActual = actualSavings.concat(Array(projectedLabels.length).fill(null));
+        const allProjected = Array(labels.length).fill(null).concat(projectedSavings);
+
+        // Draw chart
+        const ctx = document.getElementById('savingsChart').getContext('2d');
+        const roiSlider = document.getElementById('roiSlider');
+        const roiValue = document.getElementById('roiValue');
+        let savingsChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: allLabels,
+            datasets: [
+              {
+                label: 'Actual Savings',
+                data: allActual,
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5,150,105,0.08)',
+                tension: 0.2,
+                spanGaps: true,
+                pointRadius: 2,
+                borderWidth: 2,
+              },
+              {
+                label: 'Projected Savings',
+                data: allProjected,
+                borderColor: '#1976D2',
+                backgroundColor: 'rgba(25,118,210,0.08)',
+                borderDash: [6, 6],
+                tension: 0.2,
+                pointRadius: 0,
+                borderWidth: 2,
+              },
+              {
+                label: 'Asset Projection',
+                data: Array(labels.length).fill(null).concat(calculateAssetProjection(parseFloat(roiSlider.value)).projected),
+                borderColor: '#9333EA',
+                backgroundColor: 'rgba(147,51,234,0.08)',
+                borderDash: [3, 3],
+                tension: 0.2,
+                pointRadius: 0,
+                borderWidth: 2,
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: { font: { size: 14 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.dataset.label + ': ' + formatCompact(context.parsed.y) + ' €';
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) { return formatCompact(value) + ' €'; }
+                }
+              },
+              x: {
+                ticks: {
+                  maxTicksLimit: 12
+                }
+              }
+            }
+          }
+        });
+
+        Object.entries(summary).forEach(([key, value]) => {
+          const [year, month] = key.split("-");
+          const balance = value.income - value.expenses;
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${getMonthName(parseInt(month))}</td>
+            <td>${year}</td>
+            <td>${formatCompact(value.income)} €</td>
+            <td>${formatCompact(value.expenses)} €</td>
+            <td class="${balance >= 0 ? 'positive' : 'negative'}">${formatCompact(balance)} €</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        // Asset Projection Chart
+        let assetChart = null;
+
+        function calculateAssetProjection(roi) {
+          const monthlyRoi = Math.pow(1 + roi / 100, 1/12) - 1;
+          let projectedAssets = [];
+          let currentAsset = 0;
+
+          // Calculate actual assets up to current date
+          sortedKeys.forEach(key => {
+            const { income, expenses } = summary[key];
+            const savings = income - expenses;
+            currentAsset = (currentAsset + savings) * (1 + monthlyRoi);
+            projectedAssets.push(currentAsset);
+          });
+
+          // Project future assets
+          const futureAssets = [];
+          let lastAsset = projectedAssets.length > 0 ? projectedAssets[projectedAssets.length - 1] : 0;
+          
+          for (let i = 1; i <= Math.max(...projectionMonths); i++) {
+            lastAsset = (lastAsset + avgSavingsProjection) * (1 + monthlyRoi);
+            futureAssets.push(lastAsset);
+          }
+
+          return {
+            actual: projectedAssets,
+            projected: futureAssets
+          };
+        }
+
+        function updateCharts() {
+          const roi = parseFloat(roiSlider.value);
+          roiValue.textContent = roi.toFixed(1);
+          
+          const assetData = calculateAssetProjection(roi);
+          
+          // Update savings chart
+          savingsChart.data.datasets[2].data = Array(labels.length).fill(null).concat(assetData.projected);
+          savingsChart.update();
+          
+          // Update asset chart
+          if (assetChart) {
+            assetChart.destroy();
+          }
+
+          const ctx = document.getElementById('assetChart').getContext('2d');
+          assetChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: allLabels,
+              datasets: [
+                {
+                  label: 'Actual Assets',
+                  data: assetData.actual.concat(Array(projectedLabels.length).fill(null)),
+                  borderColor: '#059669',
+                  backgroundColor: 'rgba(5,150,105,0.08)',
+                  tension: 0.2,
+                  spanGaps: true,
+                  pointRadius: 2,
+                  borderWidth: 2,
+                },
+                {
+                  label: 'Projected Assets',
+                  data: Array(labels.length).fill(null).concat(assetData.projected),
+                  borderColor: '#1976D2',
+                  backgroundColor: 'rgba(25,118,210,0.08)',
+                  borderDash: [6, 6],
+                  tension: 0.2,
+                  pointRadius: 0,
+                  borderWidth: 2,
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'top',
+                  labels: { font: { size: 14 } }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return context.dataset.label + ': ' + formatCompact(context.parsed.y) + ' €';
+                    }
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function(value) { return formatCompact(value) + ' €'; }
+                  }
+                },
+                x: {
+                  ticks: {
+                    maxTicksLimit: 12
+                  }
+                }
+              }
+            }
+          });
+        }
+
+        // Update projection table
+        function updateProjectionTable() {
+          // Savings projections
+          const savings = [12, 24, 60, 120, 240, 360].map(m => totalSavings + avgSavingsProjection * m);
+          document.getElementById('savings-1y').textContent = formatCompact(savings[0]) + ' €';
+          document.getElementById('savings-2y').textContent = formatCompact(savings[1]) + ' €';
+          document.getElementById('savings-5y').textContent = formatCompact(savings[2]) + ' €';
+          document.getElementById('savings-10y').textContent = formatCompact(savings[3]) + ' €';
+          document.getElementById('savings-20y').textContent = formatCompact(savings[4]) + ' €';
+          document.getElementById('savings-30y').textContent = formatCompact(savings[5]) + ' €';
+          // Asset projections
+          const roi = parseFloat(roiSlider.value);
+          const assetData = calculateAssetProjection(roi);
+          const asset = [11, 23, 59, 119, 239, 359].map(i => assetData.projected[i] || assetData.projected[assetData.projected.length-1] || 0);
+          document.getElementById('asset-1y').textContent = formatCompact(asset[0]) + ' €';
+          document.getElementById('asset-2y').textContent = formatCompact(asset[1]) + ' €';
+          document.getElementById('asset-5y').textContent = formatCompact(asset[2]) + ' €';
+          document.getElementById('asset-10y').textContent = formatCompact(asset[3]) + ' €';
+          document.getElementById('asset-20y').textContent = formatCompact(asset[4]) + ' €';
+          document.getElementById('asset-30y').textContent = formatCompact(asset[5]) + ' €';
+        }
+        // Call on load and whenever ROI changes
+        roiSlider.addEventListener('input', () => {
+          updateCharts();
+          updateProjectionTable();
+        });
+        updateProjectionTable();
+
+      } catch (err) {
+        console.error("Failed to load monthly summary:", err);
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="5">⚠️ Failed to load data.</td>`;
+        tableBody.appendChild(row);
+      }
+    });
+  </script>
+</body>
+</html>
