@@ -54,6 +54,123 @@
         <p>&copy; 2024 Financial Freedom Tools. All rights reserved.</p>
     </footer>
 
-    <script src="scripts.js"></script>
+    <script>
+        document.getElementById('retirementForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get input values
+            const years = parseFloat(document.getElementById('years').value);
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value);
+            const roi = parseFloat(document.getElementById('roi').value) / 100;
+            const withdrawalRate = parseFloat(document.getElementById('withdrawalRate').value) / 100;
+            
+            if (isNaN(years) || isNaN(monthlyIncome) || isNaN(currentSavings) || isNaN(roi) || isNaN(withdrawalRate)) return;
+            
+            // Calculate target wealth needed at retirement
+            const targetWealth = (monthlyIncome * 12) / withdrawalRate;
+            
+            // Calculate future value of current savings
+            const fvCurrent = currentSavings * Math.pow(1 + roi, years);
+            
+            // Calculate required monthly investment (PMT)
+            let requiredMonthly = 0;
+            if (fvCurrent < targetWealth) {
+                const n = years * 12;
+                const r = Math.pow(1 + roi, 1/12) - 1;
+                requiredMonthly = (targetWealth - fvCurrent) * r / (Math.pow(1 + r, n) - 1);
+            }
+
+            // Calculate how long the assets will last
+            let yearsToDepletion = 0;
+            let currentAssets = targetWealth;
+            const annualWithdrawal = monthlyIncome * 12;
+
+            while (currentAssets > 0 && yearsToDepletion < 100) {
+                currentAssets = (currentAssets - annualWithdrawal) * (1 + roi);
+                yearsToDepletion++;
+            }
+            
+            // Format currency
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount);
+            }
+            
+            // Output results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            
+            let resultsHTML = `
+                <div class="result-section">
+                    <h3>Retirement Planning Results</h3>
+                    <p><strong>Target wealth needed at retirement:</strong> ${formatCurrency(targetWealth)}</p>
+            `;
+            
+            if (fvCurrent >= targetWealth) {
+                resultsHTML += `<div class="success-message">🎉 You're already on track!</div>`;
+            } else {
+                resultsHTML += `<div class="investment-message">🚀 You need to invest <strong>${formatCurrency(Math.ceil(requiredMonthly))}/month</strong></div>`;
+            }
+
+            resultsHTML += `
+                <div class="sustainability-message">
+                    <h4>Asset Sustainability</h4>
+                    <p>${yearsToDepletion >= 100 ? 
+                        '✅ Your retirement assets appear sustainable for over 100 years' : 
+                        `⚠️ Your retirement assets will last approximately ${yearsToDepletion} years`}</p>
+                </div>
+            </div>`;
+            
+            resultsDiv.innerHTML = resultsHTML;
+        });
+    </script>
+
+    <style>
+        .result-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        .result-section h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        .result-section p {
+            margin: 0.5rem 0;
+            font-size: 1.1em;
+            color: #666;
+        }
+        .success-message {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            color: #2e7d32;
+        }
+        .investment-message {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+            color: #1565c0;
+        }
+        .sustainability-message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #fff3e0;
+            border-radius: 4px;
+        }
+        .sustainability-message h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+    </style>
 </body>
 </html> 

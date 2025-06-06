@@ -28,6 +28,22 @@
         .hidden {
             display: none !important;
         }
+        .depletion-result {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        .depletion-result h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        .depletion-result p {
+            margin: 0;
+            font-size: 1.1em;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -246,6 +262,45 @@
 
             // Show results
             document.getElementById('results').style.display = 'block';
+
+            // Calculate how long the money will last
+            let yearsToDepletion = 0;
+            let currentAssetValue = currentAssets;
+            let currentTotalLoan = 0;
+
+            while (currentAssetValue > currentTotalLoan && yearsToDepletion < 100) {
+                // Calculate interest on existing loan
+                const interestPaid = currentTotalLoan * interestRate;
+                currentTotalLoan += interestPaid;
+
+                // Calculate new borrowing based on mode
+                let newBorrowing;
+                if (mode === 'income') {
+                    newBorrowing = yearlyIncome;
+                    if (adjustInflation) {
+                        yearlyIncome *= (1 + inflationRate);
+                    }
+                } else {
+                    newBorrowing = currentAssetValue * loanPercentage;
+                }
+                currentTotalLoan += newBorrowing;
+
+                // Calculate asset growth
+                currentAssetValue *= (1 + annualROI);
+
+                yearsToDepletion++;
+            }
+
+            // Add depletion result to the results section
+            const depletionResult = document.createElement('div');
+            depletionResult.className = 'depletion-result';
+            depletionResult.innerHTML = `
+                <h3>Strategy Sustainability</h3>
+                <p>${yearsToDepletion >= 100 ? 
+                    '✅ Your strategy appears sustainable for over 100 years' : 
+                    `⚠️ Your assets will be depleted in approximately ${yearsToDepletion} years`}</p>
+            `;
+            document.getElementById('results').insertBefore(depletionResult, document.querySelector('.table-responsive'));
         });
     </script>
 </body>
