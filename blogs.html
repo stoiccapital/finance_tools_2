@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Financial insights, strategies, and educational content to help you achieve financial freedom">
+    <title>Blog | Financial Freedom Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico">
+    <style>
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .blog-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .blog-content {
+            padding: 1.5rem;
+        }
+
+        .blog-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .blog-excerpt {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .read-more {
+            color: #000;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .blog-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/logo.png" alt="Logo" class="logo">
+            </a>
+            <div class="nav-links">
+                <a href="overview.html">Dashboard</a>
+                <a href="tools.html">Tools</a>
+                <a href="solution.html">Solution</a>
+                <a href="blogs.html" class="active">Blogs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="tools-header">
+            <h1>Financial Insights Blog</h1>
+            <p class="subheadline">Expert analysis, strategies, and educational content to help you achieve financial freedom</p>
+        </section>
+
+        <section class="blog-grid">
+            <article class="blog-card">
+                <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop" alt="Investment Strategy" class="blog-image">
+                <div class="blog-content">
+                    <div class="blog-date">March 15, 2024</div>
+                    <h2 class="blog-title">Understanding the Buy, Borrow, Die Strategy: A Comprehensive Guide</h2>
+                    <p class="blog-excerpt">Learn how the Buy, Borrow, Die strategy can help you maximize wealth while minimizing taxes. We break down the key components and considerations for implementing this powerful financial approach.</p>
+                    <a href="#" class="read-more">Read More →</a>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop" alt="Market Analysis" class="blog-image">
+                <div class="blog-content">
+                    <div class="blog-date">March 10, 2024</div>
+                    <h2 class="blog-title">Market Analysis: Current Trends and Future Predictions</h2>
+                    <p class="blog-excerpt">An in-depth analysis of current market trends, including insights into emerging opportunities and potential risks. Stay informed about market movements and their implications for your investment strategy.</p>
+                    <a href="#" class="read-more">Read More →</a>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&auto=format&fit=crop" alt="Retirement Planning" class="blog-image">
+                <div class="blog-content">
+                    <div class="blog-date">March 5, 2024</div>
+                    <h2 class="blog-title">Retirement Planning: Building a Sustainable Income Stream</h2>
+                    <p class="blog-excerpt">Discover effective strategies for creating a sustainable retirement income. From investment diversification to withdrawal strategies, learn how to build a retirement plan that lasts.</p>
+                    <a href="#" class="read-more">Read More →</a>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <img src="https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?w=800&auto=format&fit=crop" alt="Tax Optimization" class="blog-image">
+                <div class="blog-content">
+                    <div class="blog-date">February 28, 2024</div>
+                    <h2 class="blog-title">Tax Optimization Strategies for High Net Worth Individuals</h2>
+                    <p class="blog-excerpt">Explore advanced tax optimization strategies that can help preserve and grow your wealth. Learn about legal tax-saving opportunities and how to implement them effectively.</p>
+                    <a href="#" class="read-more">Read More →</a>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop" alt="Asset Management" class="blog-image">
+                <div class="blog-content">
+                    <div class="blog-date">February 20, 2024</div>
+                    <h2 class="blog-title">Asset Management: Balancing Risk and Return</h2>
+                    <p class="blog-excerpt">Master the art of asset management with our comprehensive guide. Learn how to balance risk and return while building a diversified portfolio that aligns with your financial goals.</p>
+                    <a href="#" class="read-more">Read More →</a>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=800&auto=format&fit=crop" alt="Wealth Building" class="blog-image">
+                <div class="blog-content">
+                    <div class="blog-date">February 15, 2024</div>
+                    <h2 class="blog-title">Building Generational Wealth: Strategies for Long-term Success</h2>
+                    <p class="blog-excerpt">Learn how to build and preserve wealth for future generations. From estate planning to investment strategies, discover the key components of successful generational wealth transfer.</p>
+                    <a href="#" class="read-more">Read More →</a>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Financial Freedom Tools. All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html> 

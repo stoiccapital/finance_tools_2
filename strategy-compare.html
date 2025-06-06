@@ -11,13 +11,14 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo-link">
+            <a href="index.html" class="logo-link">
                 <img src="public/logo.png" alt="Logo" class="logo">
             </a>
             <div class="nav-links">
+                <a href="overview.html">Dashboard</a>
                 <a href="tools.html">Tools</a>
                 <a href="solution.html">Solution</a>
-                <a href="blog.html">Blog</a>
+                <a href="blogs.html">Blog</a>
             </div>
         </div>
     </nav>
@@ -36,24 +37,12 @@
                     <input type="number" id="return" name="return" placeholder="e.g. 5" min="0" step="any" required>
                 </div>
                 <div class="form-group">
-                    <label for="withdrawalRate">Withdrawal Rate (%) (for selling)</label>
-                    <input type="number" id="withdrawalRate" name="withdrawalRate" placeholder="e.g. 4" min="0" step="any" required>
+                    <label for="rate">Income, withdrawal rate or borrowing rate (%)</label>
+                    <input type="number" id="rate" name="rate" placeholder="e.g. 4" min="0" step="any" required>
                 </div>
                 <div class="form-group">
-                    <label for="ltv">Loan-to-Value Ratio (%) (for Buy, Borrow, Die)</label>
-                    <input type="number" id="ltv" name="ltv" placeholder="e.g. 70" min="0" max="100" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="interest">Annual Interest Rate (%) (for Buy, Borrow, Die)</label>
+                    <label for="interest">Annual Interest Rate (%)</label>
                     <input type="number" id="interest" name="interest" placeholder="e.g. 4" min="0" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="borrowPercent">Buy, Borrow, Die Amount (% of assets per year, optional)</label>
-                    <input type="number" id="borrowPercent" name="borrowPercent" placeholder="e.g. 4" min="0" step="any">
-                </div>
-                <div class="form-group">
-                    <label for="dividendRate">Income/Dividend Rate (%)</label>
-                    <input type="number" id="dividendRate" name="dividendRate" placeholder="e.g. 4" min="0" step="any" required>
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1; text-align: center;">
                     <p style="margin-bottom: 1rem; color: var(--text-secondary);">Fill in your financial parameters above and click the button below to compare strategies</p>

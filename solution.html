@@ -10,13 +10,14 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo-link">
+            <a href="index.html" class="logo-link">
                 <img src="public/logo.png" alt="Logo" class="logo">
             </a>
             <div class="nav-links">
+                <a href="overview.html">Dashboard</a>
                 <a href="tools.html">Tools</a>
-                <a href="solution.html">Solution</a>
-                <a href="blog.html">Blog</a>
+                <a href="solution.html" class="active">Solution</a>
+                <a href="blogs.html">Blogs</a>
             </div>
         </div>
     </nav>
@@ -87,104 +88,7 @@
         <p>&copy; 2024 Financial Freedom Tools. All rights reserved.</p>
     </footer>
 
-    <style>
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
+    <script src="scripts.js"></script>
 
-        .data-table th,
-        .data-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .data-table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-        }
-
-        .data-table tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .submitted-data {
-            margin-top: 30px;
-        }
-
-        .submitted-data h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-    </style>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set default year to current year
-            const currentYear = new Date().getFullYear();
-            document.getElementById('year').value = currentYear;
-
-            const form = document.getElementById('trackerForm');
-            const messageDiv = document.getElementById('message');
-            const dataTableBody = document.getElementById('dataTableBody');
-
-            // Function to get month name from number
-            function getMonthName(monthNumber) {
-                const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                              'July', 'August', 'September', 'October', 'November', 'December'];
-                return months[monthNumber - 1];
-            }
-
-            // Function to add new row to table
-            function addDataToTable(data) {
-                const row = document.createElement('tr');
-                const balance = parseFloat(data.income) - parseFloat(data.expenses);
-                
-                row.innerHTML = `
-                    <td>${getMonthName(data.month)}</td>
-                    <td>${data.year}</td>
-                    <td>${parseFloat(data.income).toFixed(2)}</td>
-                    <td>${parseFloat(data.expenses).toFixed(2)}</td>
-                    <td class="${balance >= 0 ? 'positive' : 'negative'}">${balance.toFixed(2)}</td>
-                `;
-                
-                dataTableBody.insertBefore(row, dataTableBody.firstChild);
-            }
-
-            form.onsubmit = async (e) => {
-                e.preventDefault();
-
-                const data = {
-                    month: document.getElementById('month').value,
-                    year: document.getElementById('year').value,
-                    income: document.getElementById('income').value,
-                    expenses: document.getElementById('expenses').value
-                };
-
-                try {
-                    await fetch('https://script.google.com/macros/s/AKfycbzrb1C_9HmneNmf9H2gFkf6DeHxL9OZHNsL32jmUCbnJoCbwhUGirnkYLIApKlJBLdr/exec', {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
-                    messageDiv.textContent = '✅ Data submitted!';
-                    messageDiv.className = 'message success';
-                    
-                    // Add the submitted data to the table
-                    addDataToTable(data);
-                    
-                    form.reset();
-                    document.getElementById('year').value = currentYear;
-                } catch (error) {
-                    messageDiv.textContent = '❌ Submission failed.';
-                    messageDiv.className = 'message error';
-                    console.error(error);
-                }
-            };
-        });
-    </script>
 </body>
 </html> 

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate your long-term wealth strategy using the Buy, Borrow, Die approach">
+    <title>Buy, Borrow, Die Calculator | Financial Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico">
+    <style>
+        .high-ltv {
+            background-color: #ffebee !important;
+        }
+        .mode-section {
+            margin-bottom: 1.5rem;
+        }
+        .mode-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/logo.png" alt="Logo" class="logo">
+            </a>
+            <div class="nav-links">
+                <a href="overview.html">Dashboard</a>
+                <a href="tools.html" class="active">Tools</a>
+                <a href="solution.html">Solution</a>
+                <a href="blogs.html">Blogs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <h1>Buy, Borrow, Die Calculator</h1>
+        <p class="subheadline">Calculate your long-term wealth strategy using the Buy, Borrow, Die approach</p>
+
+        <form id="bbdForm" class="tracker-form">
+            <div class="mode-section">
+                <div class="mode-toggle">
+                    <label>
+                        <input type="radio" name="mode" value="income" checked>
+                        Income-based Mode
+                    </label>
+                    <label>
+                        <input type="radio" name="mode" value="percentage">
+                        Percentage-based Mode
+                    </label>
+                </div>
+            </div>
+
+            <div id="incomeMode">
+                <div class="form-group">
+                    <label for="monthlyIncome">Desired Monthly Income</label>
+                    <input type="number" id="monthlyIncome" required min="0" step="1000">
+                </div>
+
+                <div class="form-group">
+                    <label for="inflationRate">Annual Inflation Rate (%)</label>
+                    <input type="number" id="inflationRate" required min="0" max="100" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="adjustInflation">
+                        Adjust for inflation
+                    </label>
+                </div>
+            </div>
+
+            <div id="percentageMode" class="hidden">
+                <div class="form-group">
+                    <label for="loanPercentage">Annual Loan Percentage (%)</label>
+                    <input type="number" id="loanPercentage" min="0" max="100" step="0.1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="currentAssets">Current Assets</label>
+                <input type="number" id="currentAssets" required min="0" step="1000">
+            </div>
+
+            <div class="form-group">
+                <label for="annualROI">Annual Return on Investment (%)</label>
+                <input type="number" id="annualROI" required min="0" max="100" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="interestRate">Annual Interest Rate (%)</label>
+                <input type="number" id="interestRate" required min="0" max="100" step="0.1">
+            </div>
+
+            <button type="submit" class="submit-button">Calculate</button>
+        </form>
+
+        <div id="results" style="display: none;">
+            <h2>Projection Results</h2>
+            <div class="table-responsive">
+                <table class="projection-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Asset Value</th>
+                            <th>Total Loan</th>
+                            <th>Borrowed This Year</th>
+                            <th>Interest Paid</th>
+                            <th>LTV Ratio</th>
+                            <th>Equity Remaining</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Format number to K/M/B with max 3 digits total
+        function formatNumber(num) {
+            const absNum = Math.abs(num);
+            if (absNum >= 1e9) {
+                const billions = num / 1e9;
+                return billions.toFixed(Math.max(0, 3 - Math.floor(billions).toString().length)) + 'B';
+            }
+            if (absNum >= 1e6) {
+                const millions = num / 1e6;
+                return millions.toFixed(Math.max(0, 3 - Math.floor(millions).toString().length)) + 'M';
+            }
+            if (absNum >= 1e3) {
+                const thousands = num / 1e3;
+                return thousands.toFixed(Math.max(0, 3 - Math.floor(thousands).toString().length)) + 'K';
+            }
+            return num.toFixed(0);
+        }
+
+        // Mode toggle functionality
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const incomeMode = document.getElementById('incomeMode');
+                const percentageMode = document.getElementById('percentageMode');
+                const monthlyIncome = document.getElementById('monthlyIncome');
+                const inflationRate = document.getElementById('inflationRate');
+                const adjustInflation = document.getElementById('adjustInflation');
+                const loanPercentage = document.getElementById('loanPercentage');
+
+                if (this.value === 'income') {
+                    incomeMode.classList.remove('hidden');
+                    percentageMode.classList.add('hidden');
+                    monthlyIncome.required = true;
+                    inflationRate.required = true;
+                    loanPercentage.required = false;
+                } else {
+                    incomeMode.classList.add('hidden');
+                    percentageMode.classList.remove('hidden');
+                    monthlyIncome.required = false;
+                    inflationRate.required = false;
+                    loanPercentage.required = true;
+                }
+            });
+        });
+
+        document.getElementById('bbdForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get input values
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const currentAssets = parseFloat(document.getElementById('currentAssets').value);
+            const annualROI = parseFloat(document.getElementById('annualROI').value) / 100;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+
+            // Initialize variables
+            let assetValue = currentAssets;
+            let totalLoan = 0;
+            let yearlyIncome = 0;
+            let inflationRate = 0;
+            let adjustInflation = false;
+            let loanPercentage = 0;
+
+            if (mode === 'income') {
+                yearlyIncome = parseFloat(document.getElementById('monthlyIncome').value) * 12;
+                inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100;
+                adjustInflation = document.getElementById('adjustInflation').checked;
+            } else {
+                loanPercentage = parseFloat(document.getElementById('loanPercentage').value) / 100;
+            }
+
+            // Clear previous results
+            const resultsBody = document.getElementById('resultsBody');
+            resultsBody.innerHTML = '';
+
+            // Calculate and display results for 50 years
+            for (let year = 1; year <= 50; year++) {
+                // Calculate interest on existing loan
+                const interestPaid = totalLoan * interestRate;
+                totalLoan += interestPaid;
+
+                // Calculate new borrowing based on mode
+                let newBorrowing;
+                if (mode === 'income') {
+                    newBorrowing = yearlyIncome;
+                    if (adjustInflation) {
+                        yearlyIncome *= (1 + inflationRate);
+                    }
+                } else {
+                    newBorrowing = assetValue * loanPercentage;
+                }
+                totalLoan += newBorrowing;
+
+                // Calculate asset growth
+                assetValue *= (1 + annualROI);
+
+                // Calculate equity and LTV ratio
+                const equity = assetValue - totalLoan;
+                const ltvRatio = (totalLoan / assetValue) * 100;
+
+                // Create table row
+                const row = document.createElement('tr');
+                if (ltvRatio > 70) {
+                    row.classList.add('high-ltv');
+                }
+                row.innerHTML = `
+                    <td>${year}</td>
+                    <td>${formatNumber(assetValue)}</td>
+                    <td>${formatNumber(totalLoan)}</td>
+                    <td>${formatNumber(newBorrowing)}</td>
+                    <td>${formatNumber(interestPaid)}</td>
+                    <td>${ltvRatio.toFixed(1)}%</td>
+                    <td>${formatNumber(equity)}</td>
+                `;
+                resultsBody.appendChild(row);
+            }
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        });
+    </script>
+</body>
+</html> 

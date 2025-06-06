@@ -10,43 +10,54 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo-link">
+            <a href="index.html" class="logo-link">
                 <img src="public/logo.png" alt="Logo" class="logo">
             </a>
             <div class="nav-links">
-                <a href="tools.html">Tools</a>
+                <a href="overview.html">Dashboard</a>
+                <a href="tools.html" class="active">Tools</a>
                 <a href="solution.html">Solution</a>
-                <a href="blog.html">Blog</a>
+                <a href="blogs.html">Blogs</a>
             </div>
         </div>
     </nav>
 
-    <main>
+    <main class="container">
         <section class="tools-header">
-            <h1>All Tools</h1>
+            <h1>Financial Tools</h1>
+            <p class="subheadline">Explore our suite of financial planning and analysis tools</p>
         </section>
 
         <section class="tools-grid">
-            <a href="strategy-compare.html" class="tool-card">
+            <div class="tool-card">
                 <h2>Strategy Comparison</h2>
                 <p>Compare different asset utilization strategies: income generation, selling assets, and Buy, Borrow, Die against assets</p>
-            </a>
-            <a href="income-calculator.html" class="tool-card">
+                <a href="strategy-compare.html" class="tool-button">Open Tool</a>
+            </div>
+
+            <div class="tool-card">
                 <h2>Income from Assets</h2>
-                <p>Calculate potential income from your investment portfolio</p>
-            </a>
-            <a href="sell.html" class="tool-card">
+                <p>Calculate potential income from your investment portfolio and analyze different income generation strategies</p>
+                <a href="income-calculator.html" class="tool-button">Open Tool</a>
+            </div>
+
+            <div class="tool-card">
                 <h2>Sell Asset Simulator</h2>
-                <p>Simulate selling assets and analyze tax implications</p>
-            </a>
-            <a href="#" class="tool-card">
+                <p>Simulate selling assets and analyze tax implications to optimize your selling strategy</p>
+                <a href="sell.html" class="tool-button">Open Tool</a>
+            </div>
+
+            <div class="tool-card">
                 <h2>Borrow Against Assets</h2>
-                <p>Calculate Buy, Borrow, Die power against your assets</p>
-            </a>
-            <a href="retirement.html" class="tool-card">
+                <p>Calculate Buy, Borrow, Die power against your assets and understand leverage strategies</p>
+                <a href="bbd.html" class="tool-button">Open Tool</a>
+            </div>
+
+            <div class="tool-card">
                 <h2>Retirement Goal Planner</h2>
-                <p>Find out how much to invest monthly to retire when you want and with the lifestyle you want.</p>
-            </a>
+                <p>Find out how much to invest monthly to retire when you want and with the lifestyle you desire</p>
+                <a href="retirement.html" class="tool-button">Open Tool</a>
+            </div>
         </section>
     </main>
 
