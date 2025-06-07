@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your income and expenses with this easy-to-use financial tool.">
+    <title>Income & Expense Tracker | Financial Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico">
+    <style>
+        .transaction-form {
+            display: none;
+            margin-bottom: 2rem;
+        }
+        .transaction-form.show {
+            display: block;
+        }
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+        .transactions-table th,
+        .transactions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .transactions-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .transactions-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .income {
+            color: #2ecc71;
+        }
+        .expense {
+            color: #e74c3c;
+        }
+        .add-transaction-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        .add-transaction-btn:hover {
+            background-color: #2980b9;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/logo.png" alt="Logo" class="logo">
+            </a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="tools.html">Tools</a>
+                <a href="income-expense-tracker.html">Solution</a>
+                <a href="blogs.html">Blogs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="tools-headline">Income & Expense Tracker</h1>
+        <p class="subheadline">Keep track of your financial transactions and monitor your spending habits.</p>
+        
+        <div class="calculator-container">
+            <button type="button" class="add-transaction-btn" id="showFormBtn">Add New Transaction</button>
+
+            <div class="transaction-form" id="transactionForm">
+                <h3>Add New Transaction</h3>
+                <form id="transactionFormContent">
+                    <div class="form-group">
+                        <label for="transactionType">Transaction Type</label>
+                        <select id="transactionType" name="transactionType" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (€)</label>
+                        <input type="number" id="amount" name="amount" placeholder="e.g. 1000" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="month">Month</label>
+                        <select id="month" name="month" required>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <input type="number" id="year" name="year" min="2000" max="2100" required>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1; text-align: center;">
+                        <button type="submit" class="calculate-btn">Add Transaction</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="summary-container">
+                <div class="summary-card">
+                    <h3>Financial Summary</h3>
+                    <div class="result-item">
+                        <span>Total Income:</span>
+                        <span id="totalIncome">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Total Expenses:</span>
+                        <span id="totalExpenses">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Net Balance:</span>
+                        <span id="netBalance">€0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transactions-container">
+                <h3>Transaction History</h3>
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Income</th>
+                            <th>Expense</th>
+                            <th>Savings</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <!-- Transactions will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Financial Freedom Tools. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showFormBtn = document.getElementById('showFormBtn');
+            const transactionForm = document.getElementById('transactionForm');
+            const transactionFormContent = document.getElementById('transactionFormContent');
+            const transactionsTableBody = document.getElementById('transactionsTableBody');
+            let transactions = [];
+
+            // Load saved transactions from localStorage
+            function loadTransactions() {
+                const savedTransactions = localStorage.getItem('transactions');
+                if (savedTransactions) {
+                    transactions = JSON.parse(savedTransactions);
+                    updateTransactionsTable();
+                    updateSummary();
+                }
+            }
+
+            // Save transactions to localStorage
+            function saveTransactions() {
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+            }
+
+            // Set default year and month to current year and last used month (or current month)
+            const currentYear = new Date().getFullYear();
+            const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+            const lastUsedMonth = localStorage.getItem('lastUsedMonth') || currentMonth;
+            document.getElementById('year').value = currentYear;
+            document.getElementById('month').value = lastUsedMonth;
+
+            // Load saved transactions when page loads
+            loadTransactions();
+
+            // Show/hide form
+            showFormBtn.addEventListener('click', function() {
+                transactionForm.classList.toggle('show');
+            });
+
+            // Handle form submission
+            transactionFormContent.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const month = document.getElementById('month').value;
+                const year = document.getElementById('year').value;
+                const date = `${year}-${month}-01`; // Using first day of month for consistency
+
+                // Save last used month to localStorage
+                localStorage.setItem('lastUsedMonth', month);
+
+                const transaction = {
+                    date: date,
+                    type: document.getElementById('transactionType').value,
+                    amount: parseFloat(document.getElementById('amount').value),
+                    month: month,
+                    year: year
+                };
+
+                transactions.push(transaction);
+                saveTransactions(); // Save after adding new transaction
+                updateTransactionsTable();
+                updateSummary();
+                transactionFormContent.reset();
+                document.getElementById('year').value = currentYear; // Reset year to current year
+                document.getElementById('month').value = month; // Reset month to last used month
+                transactionForm.classList.remove('show');
+            });
+
+            // Add clear data button
+            const clearDataBtn = document.createElement('button');
+            clearDataBtn.textContent = 'Clear All Data';
+            clearDataBtn.className = 'add-transaction-btn';
+            clearDataBtn.style.backgroundColor = '#e74c3c';
+            clearDataBtn.style.marginLeft = '1rem';
+            clearDataBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all transaction data? This cannot be undone.')) {
+                    transactions = [];
+                    localStorage.removeItem('transactions');
+                    updateTransactionsTable();
+                    updateSummary();
+                }
+            });
+            showFormBtn.parentNode.insertBefore(clearDataBtn, showFormBtn.nextSibling);
+
+            function updateTransactionsTable() {
+                transactionsTableBody.innerHTML = '';
+                
+                // Group transactions by month and year
+                const groupedTransactions = {};
+                transactions.forEach(transaction => {
+                    const key = `${transaction.year}-${transaction.month}`;
+                    if (!groupedTransactions[key]) {
+                        groupedTransactions[key] = {
+                            date: `${transaction.year}-${transaction.month}-01`,
+                            income: 0,
+                            expense: 0
+                        };
+                    }
+                    if (transaction.type === 'income') {
+                        groupedTransactions[key].income += transaction.amount;
+                    } else {
+                        groupedTransactions[key].expense += transaction.amount;
+                    }
+                });
+
+                // Sort by date (newest first)
+                const sortedDates = Object.keys(groupedTransactions).sort().reverse();
+                
+                sortedDates.forEach(dateKey => {
+                    const transaction = groupedTransactions[dateKey];
+                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                     'July', 'August', 'September', 'October', 'November', 'December'];
+                    const monthName = monthNames[parseInt(transaction.date.split('-')[1]) - 1];
+                    const year = transaction.date.split('-')[0];
+                    const monthlyBalance = transaction.income - transaction.expense;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${monthName} ${year}</td>
+                        <td class="income">${transaction.income > 0 ? '€' + transaction.income.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>
+                        <td class="expense">${transaction.expense > 0 ? '€' + transaction.expense.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>
+                        <td class="${monthlyBalance >= 0 ? 'income' : 'expense'}">€${monthlyBalance.toFixed(2)}</td>
+                        <td><button class="delete-btn" data-date="${dateKey}">Delete</button></td>
+                    `;
+                    transactionsTableBody.appendChild(row);
+                });
+
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const dateKey = this.getAttribute('data-date');
+                        if (confirm('Are you sure you want to delete all transactions for this month?')) {
+                            // Remove all transactions for this month
+                            transactions = transactions.filter(t => `${t.year}-${t.month}` !== dateKey);
+                            saveTransactions();
+                            updateTransactionsTable();
+                            updateSummary();
+                        }
+                    });
+                });
+            }
+
+            function updateSummary() {
+                const totalIncome = transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const totalExpenses = transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const netBalance = totalIncome - totalExpenses;
+
+                document.getElementById('totalIncome').textContent = `€${totalIncome.toFixed(2)}`;
+                document.getElementById('totalExpenses').textContent = `€${totalExpenses.toFixed(2)}`;
+                document.getElementById('netBalance').textContent = `€${netBalance.toFixed(2)}`;
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-link">
+        <img src="public/logo.png" alt="Logo" class="logo">
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="tools.html">Tools</a>
+        <a href="income-expense-tracker.html">Solution</a>
+        <a href="blogs.html">Blogs</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard">
+      <h1 class="section-title">Dashboard</h1>
+      <div class="dashboard-cards">
+      </div>
+      <div class="dashboard-cards" id="tracker-summary-cards"></div>
+      <div class="dashboard-cards"></div>
+      <div class="table-responsive" style="margin-top:2rem;">
+        <table class="data-table" id="totalsTable" style="margin-bottom:2rem;">
+          <thead>
+            <tr>
+              <th>Total Income (€)</th>
+              <th>Total Expense (€)</th>
+              <th>Total Balance (€)</th>
+            </tr>
+          </thead>
+          <tbody id="totalsTableBody"></tbody>
+        </table>
+      </div>
+      <div class="table-responsive" style="margin-top:2rem;">
+        <table class="data-table" id="averagesTable" style="margin-bottom:2rem;">
+          <thead>
+            <tr>
+              <th>Average Income (€)</th>
+              <th>Average Expense (€)</th>
+              <th>Average Savings (€)</th>
+            </tr>
+          </thead>
+          <tbody id="averagesTableBody"></tbody>
+        </table>
+      </div>
+      <div class="table-responsive" style="margin-top:2rem;">
+        <table class="data-table" id="trackerMonthlyTable">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Year</th>
+              <th>Total Income (€)</th>
+              <th>Total Expenses (€)</th>
+              <th>Balance (€)</th>
+            </tr>
+          </thead>
+          <tbody id="trackerMonthlyTableBody"></tbody>
+        </table>
+      </div>
+
+      <section class="projection-section" style="margin-top:3rem;">
+        <h2 class="section-title">Projection</h2>
+        <div style="margin-bottom:1rem;">
+          <label for="projectionInterestRate">Interest Rate (% per year): </label>
+          <input type="number" id="projectionInterestRate" value="5" min="0" max="100" step="0.01" style="width:80px;">
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="projectionTable">
+            <thead>
+              <tr>
+                <th>Years</th>
+                <th>Projected Savings (€)</th>
+                <th>Projected Assets (€)</th>
+              </tr>
+            </thead>
+            <tbody id="projectionTableBody"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:2rem;">
+          <canvas id="projectionChart" height="80"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="scripts.js"></script>
+  <script>
+    // Income & Expense Tracker Analytics
+    function renderTrackerAnalytics() {
+      const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+      if (!transactions.length) return;
+
+      // Group by month-year
+      const grouped = {};
+      let monthCount = 0;
+      transactions.forEach(t => {
+        const key = `${t.year}-${t.month}`;
+        if (!grouped[key]) {
+          grouped[key] = { income: 0, expense: 0, year: t.year, month: t.month };
+          monthCount++;
+        }
+        if (t.type === 'income') {
+          grouped[key].income += t.amount;
+        } else {
+          grouped[key].expense += t.amount;
+        }
+      });
+
+      console.log('Number of months:', monthCount);
+      console.log('Months in data:', Object.keys(grouped));
+
+      // Calculate totals and monthly balances
+      let totalIncome = 0;
+      let totalExpense = 0;
+      let totalMonthlyBalances = 0;
+
+      Object.values(grouped).forEach(month => {
+        totalIncome += month.income;
+        totalExpense += month.expense;
+        const monthlyBalance = month.income - month.expense;
+        totalMonthlyBalances += monthlyBalance;
+        console.log(`${month.year}-${month.month}: Balance = ${monthlyBalance}`);
+      });
+
+      console.log('Total monthly balances:', totalMonthlyBalances);
+      const netBalance = totalIncome - totalExpense;
+      const averageMonthlySavings = monthCount > 0 ? totalMonthlyBalances / monthCount : 0;
+      const averageIncome = monthCount > 0 ? totalIncome / monthCount : 0;
+      const averageExpense = monthCount > 0 ? totalExpense / monthCount : 0;
+      console.log('Average monthly savings:', averageMonthlySavings);
+
+      // Render totals table
+      document.getElementById('totalsTableBody').innerHTML = `
+        <tr>
+          <td style=\"color:#2ecc71;\">€${formatNumberShort(totalIncome)}</td>
+          <td style=\"color:#e74c3c;\">€${formatNumberShort(totalExpense)}</td>
+          <td style=\"color:${netBalance>=0?'#2ecc71':'#e74c3c'};\">€${formatNumberShort(netBalance)}</td>
+        </tr>
+      `;
+
+      // Render summary cards
+      document.getElementById('tracker-summary-cards').innerHTML = '';
+
+      // Update average cards
+      document.getElementById('averagesTableBody').innerHTML = `
+        <tr>
+          <td style=\"color:#2ecc71;\">€${formatNumberShort(averageIncome)}</td>
+          <td style=\"color:#e74c3c;\">€${formatNumberShort(averageExpense)}</td>
+          <td style=\"color:#3498db;\">€${formatNumberShort(averageMonthlySavings)}</td>
+        </tr>
+      `;
+
+      // Render monthly table (newest to oldest)
+      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const sortedKeys = Object.keys(grouped).sort().reverse();
+      let rows = '';
+      sortedKeys.forEach(key => {
+        const g = grouped[key];
+        const balance = g.income - g.expense;
+        rows += `<tr>
+          <td>${monthNames[parseInt(g.month)-1]}</td>
+          <td>${g.year}</td>
+          <td style=\"color:#2ecc71;\">${g.income>0?('€'+formatNumberShort(g.income)):'-'}</td>
+          <td style=\"color:#e74c3c;\">${g.expense>0?('€'+formatNumberShort(g.expense)):'-'}</td>
+          <td style=\"color:${balance>=0?'#2ecc71':'#e74c3c'};\">€${formatNumberShort(balance)}</td>
+        </tr>`;
+      });
+      document.getElementById('trackerMonthlyTableBody').innerHTML = rows;
+    }
+    renderTrackerAnalytics();
+
+    // Projection Calculation and Chart
+    function calculateProjection(principal, years, rate) {
+      // Compound interest, monthly contributions
+      const n = 12; // compounding periods per year
+      const monthlyRate = rate / 100 / n;
+      const months = years * n;
+      // FV = P * [((1 + r)^nt - 1) / r]
+      return principal * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+    }
+
+    // Projected Savings: simple sum, no compounding
+    function calculateProjectedSavingsSimple(monthly, years) {
+      return monthly * 12 * years;
+    }
+
+    function renderProjectionTableAndChart() {
+      const interestRate = parseFloat(document.getElementById('projectionInterestRate').value) || 0;
+      // Use averageMonthlySavings as monthly contribution
+      const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+      if (!transactions.length) return;
+      // Group by month-year
+      const grouped = {};
+      let monthCount = 0;
+      transactions.forEach(t => {
+        const key = `${t.year}-${t.month}`;
+        if (!grouped[key]) {
+          grouped[key] = { income: 0, expense: 0, year: t.year, month: t.month };
+          monthCount++;
+        }
+        if (t.type === 'income') {
+          grouped[key].income += t.amount;
+        } else {
+          grouped[key].expense += t.amount;
+        }
+      });
+      let totalIncome = 0;
+      let totalExpense = 0;
+      let totalMonthlyBalances = 0;
+      Object.values(grouped).forEach(month => {
+        totalIncome += month.income;
+        totalExpense += month.expense;
+        const monthlyBalance = month.income - month.expense;
+        totalMonthlyBalances += monthlyBalance;
+      });
+      const averageMonthlySavings = monthCount > 0 ? totalMonthlyBalances / monthCount : 0;
+      // Assume assets = total net balance so far
+      const netBalance = totalIncome - totalExpense;
+
+      // Years to project
+      const yearsArr = [1, 3, 5, 10, 30];
+      const rows = yearsArr.map(years => {
+        const projectedSavings = calculateProjectedSavingsSimple(averageMonthlySavings, years);
+        const projectedAssets = netBalance + calculateProjection(averageMonthlySavings, years, interestRate);
+        return `<tr>
+          <td>${years}</td>
+          <td style='color:#3498db;'>€${formatNumberShort(projectedSavings)}</td>
+          <td style='color:#2ecc71;'>€${formatNumberShort(projectedAssets)}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('projectionTableBody').innerHTML = rows;
+
+      // Chart for 30 years
+      const chartLabels = Array.from({length: 31}, (_, i) => i);
+      const chartSavings = chartLabels.map(year => calculateProjectedSavingsSimple(averageMonthlySavings, year));
+      const chartAssets = chartLabels.map(year => netBalance + calculateProjection(averageMonthlySavings, year, interestRate));
+
+      // Format chart y-axis labels
+      const chartOptions = {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: 'Projection Over 30 Years' }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Years' } },
+          y: {
+            title: { display: true, text: '€' },
+            ticks: {
+              callback: function(value) { return formatNumberShort(value); }
+            }
+          }
+        }
+      };
+
+      if (window.projectionChartInstance) {
+        window.projectionChartInstance.destroy();
+      }
+      const ctx = document.getElementById('projectionChart').getContext('2d');
+      window.projectionChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [
+            {
+              label: 'Projected Savings',
+              data: chartSavings,
+              borderColor: '#3498db',
+              backgroundColor: 'rgba(52,152,219,0.1)',
+              fill: true,
+            },
+            {
+              label: 'Projected Assets',
+              data: chartAssets,
+              borderColor: '#2ecc71',
+              backgroundColor: 'rgba(46,204,113,0.1)',
+              fill: true,
+            }
+          ]
+        },
+        options: chartOptions
+      });
+    }
+
+    document.getElementById('projectionInterestRate').addEventListener('input', renderProjectionTableAndChart);
+    window.addEventListener('DOMContentLoaded', renderProjectionTableAndChart);
+
+    // Format numbers as 1.000k, 1.000M, 1.000B with three decimals
+    function formatNumberShort(num) {
+      const absNum = Math.abs(num);
+      if (absNum >= 1e9) return (num / 1e9).toPrecision(3).replace(/\.0+$|0+$/,'') + 'B';
+      if (absNum >= 1e6) return (num / 1e6).toPrecision(3).replace(/\.0+$|0+$/,'') + 'M';
+      if (absNum >= 1e3) return (num / 1e3).toPrecision(3).replace(/\.0+$|0+$/,'') + 'k';
+      return num.toPrecision(3).replace(/\.0+$|0+$/,'');
+    }
+  </script>
+</body>
+</html>

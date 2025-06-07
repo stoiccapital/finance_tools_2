@@ -47,7 +47,7 @@ finance_tool_2/
 │   ├── logo.png
 │   └── favicon.ico
 ├── index.html
-├── overview.html
+├── dashboard.html
 ├── tools.html
 ├── solution.html
 ├── blogs.html
