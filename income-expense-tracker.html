@@ -72,6 +72,7 @@
             <a href="index.html" class="logo-link">
                 <img src="public/logo.png" alt="Logo" class="logo">
             </a>
+            <button class="mobile-nav-toggle" aria-label="Open navigation">&#9776;</button>
             <div class="nav-links">
                 <a href="dashboard.html">Dashboard</a>
                 <a href="tools.html">Tools</a>
@@ -325,6 +326,17 @@
                 document.getElementById('totalIncome').textContent = `€${totalIncome.toFixed(2)}`;
                 document.getElementById('totalExpenses').textContent = `€${totalExpenses.toFixed(2)}`;
                 document.getElementById('netBalance').textContent = `€${netBalance.toFixed(2)}`;
+            }
+
+            const navToggle = document.querySelector('.mobile-nav-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            if (navToggle && navLinks) {
+                navToggle.addEventListener('click', function() {
+                    navLinks.classList.toggle('open');
+                });
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => navLinks.classList.remove('open'));
+                });
             }
         });
     </script>
